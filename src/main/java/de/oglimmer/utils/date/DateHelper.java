@@ -3,12 +3,27 @@ package de.oglimmer.utils.date;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * Calculates a human readable representation of a date/time difference.
+ * 
+ * @author Oli Zimpasser
+ *
+ */
 public class DateHelper {
 
 	private DateHelper() {
-
+		// no code here
 	}
 
+	/**
+	 * Calculates a human readable date/time difference.
+	 * 
+	 * @param d1
+	 *            a starting date
+	 * @param d2
+	 *            an end date
+	 * @return a string which reads like x days, y hours, z minutes ...
+	 */
 	public static String formatDateDifference(Date d1, Date d2) {
 		long[] td = DateHelper.getTimeDifference(d1, d2);
 		if (td[0] > 0) {
@@ -23,6 +38,17 @@ public class DateHelper {
 		return td[3] + " seconds";
 	}
 
+	/**
+	 * Calculates the date/time difference of two date object.
+	 * 
+	 * @param d1
+	 *            a starting date
+	 * @param d2
+	 *            an end date
+	 * @return an array where the 0th element has the number of days, the 1st element the number of hours, the 2nd
+	 *         element the number of minutes, the 3rd element the number of seconds, the 4th element the number of
+	 *         millis.
+	 */
 	public static long[] getTimeDifference(Date d1, Date d2) {
 		long[] result = new long[5];
 

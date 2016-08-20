@@ -15,8 +15,13 @@ import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.spi.ContextAwareBase;
 
 /**
- * Checks first in -D"APP_NAME"-logback, then /etc/logback-custom.xml, then $CLASSPATH/logback-custom.xml
+ * Implements SPI-based slf4j configuration. It changes the order and places where slf4j looks for configuration files.
+ * The "APP_NAME" is given as a parameter in the constructor. Checks first the system parameter "APP_NAME"-logback for a
+ * filename, if this parameter is not given or the file doesn't exist it looks in /etc/logback-custom.xml. If all this
+ * doesn't exist it uses /logback-custom.xml in the $CLASSPATH. It also sets the slf4j variable "application-name" with
+ * the "APP_NAME".
  *
+ * @author Oli Zimpasser
  */
 abstract public class BaseConfigurator extends ContextAwareBase implements ch.qos.logback.classic.spi.Configurator {
 
@@ -29,6 +34,11 @@ abstract public class BaseConfigurator extends ContextAwareBase implements ch.qo
 		this.appName = appName;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see ch.qos.logback.classic.spi.Configurator#configure(ch.qos.logback.classic.LoggerContext)
+	 */
 	@Override
 	public void configure(LoggerContext loggerContext) {
 		addInfo("Setting up custom configuration.");

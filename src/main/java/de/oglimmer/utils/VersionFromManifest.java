@@ -11,12 +11,15 @@ import java.util.jar.Manifest;
 import lombok.Getter;
 
 /**
- * com.jcabi.manifests.Manifests
+ * Helps to read attributes from a Manifest file and provides a uniform "version" string which has version, git-commit,
+ * creation date and a html-link to git
  * 
- * @author oli
+ * @author Oli Zimpasser
  *
  */
 public class VersionFromManifest {
+
+	// CHECK: com.jcabi.manifests.Manifests
 
 	private static final int DATEFORMAT = DateFormat.FULL;
 
@@ -32,6 +35,12 @@ public class VersionFromManifest {
 	@Getter
 	private boolean initFailed;
 
+	/**
+	 * Init with a given inputStream.
+	 * 
+	 * @param inputStream
+	 *            to read the Manifest file from
+	 */
 	public void init(InputStream inputStream) {
 		try (InputStream is = inputStream) {
 			Manifest mf = new Manifest(is);
@@ -46,6 +55,13 @@ public class VersionFromManifest {
 		}
 	}
 
+	/**
+	 * Init with a given filename. This is usually called from ServletContextListener with
+	 * sce.getServletContext().getRealPath("/META-INF/MANIFEST.MF")
+	 * 
+	 * @param filename
+	 *            to read the Manifest file from
+	 */
 	public void initFromFile(String filename) {
 		try (InputStream is = new FileInputStream(filename)) {
 			init(is);
@@ -62,6 +78,11 @@ public class VersionFromManifest {
 		initFailed = true;
 	}
 
+	/**
+	 * Returns the version with all details
+	 * 
+	 * @return string with version, html-link to git, git commit hash and creation date
+	 */
 	public String getLongVersion() {
 		return "V" + version + " [<a href='" + gitUrl + "/commits/" + commit + "'>Commit#" + commit + "</a>] build "
 				+ creationDate;

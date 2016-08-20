@@ -3,10 +3,9 @@ package de.oglimmer.utils.random;
 import java.util.Random;
 
 /**
- * Creates a random string. It could be specified which character codes should
- * be used.
+ * Creates various random strings while the user can define length and characters.
  * 
- * @author Oli
+ * @author Oli Zimpasser
  */
 final public class RandomString {
 
@@ -47,8 +46,7 @@ final public class RandomString {
 	}
 
 	/**
-	 * Creates a size byte long unicode string. All codes are between a..z and
-	 * A..Z
+	 * Creates a size byte long unicode string. All codes are between a..z and A..Z
 	 * 
 	 * @param size
 	 * @return
@@ -60,16 +58,14 @@ final public class RandomString {
 			char nextChar;
 			do {
 				nextChar = (char) (RAN.nextInt(75) + 48);
-			} while ((nextChar >= 58 && nextChar <= 64)
-					|| (nextChar >= 91 && nextChar <= 96));
+			} while ((nextChar >= 58 && nextChar <= 64) || (nextChar >= 91 && nextChar <= 96));
 			buff.append(nextChar);
 		}
 		return buff.toString();
 	}
 
 	/**
-	 * Creates a size byte long unicode string. All codes are from the set
-	 * "stringSet"
+	 * Creates a size byte long unicode string. All codes are from the set "stringSet"
 	 * 
 	 * @param size
 	 * @param stringSet
@@ -80,8 +76,7 @@ final public class RandomString {
 		final StringBuilder buff = new StringBuilder(size);
 
 		for (int i = 0; i < size; i++) {
-			final char nextChar = stringSet.charAt(RAN.nextInt(stringSet
-					.length()));
+			final char nextChar = stringSet.charAt(RAN.nextInt(stringSet.length()));
 			buff.append(nextChar);
 		}
 		return buff.toString();

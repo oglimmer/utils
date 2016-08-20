@@ -32,6 +32,14 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * A base class for application property classes. Supports json-based config files, automatic reloads when the file
+ * changes, merging in-classpath and out-of-classpath files and can take the whole configuration from a string to
+ * support unit test configurations.
+ * 
+ * @author Oli Zimpasser
+ *
+ */
 @Slf4j
 public class AbstractProperties {
 
@@ -131,6 +139,12 @@ public class AbstractProperties {
 		return job.build();
 	}
 
+	/**
+	 * Register your callbacks here to get informed when the property file has changed
+	 * 
+	 * @param toCall
+	 *            a runnable to be called
+	 */
 	public void registerOnReload(Runnable toCall) {
 		reloadables.add(toCall);
 	}
@@ -140,6 +154,9 @@ public class AbstractProperties {
 		reloadables.forEach(Runnable::run);
 	}
 
+	/**
+	 * Call do stop the watch thread
+	 */
 	public void shutdown() {
 		running = false;
 		if (propertyFileWatcherThread != null) {
