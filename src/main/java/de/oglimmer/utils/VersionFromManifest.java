@@ -10,6 +10,12 @@ import java.util.jar.Manifest;
 
 import lombok.Getter;
 
+/**
+ * com.jcabi.manifests.Manifests
+ * 
+ * @author oli
+ *
+ */
 public class VersionFromManifest {
 
 	private static final int DATEFORMAT = DateFormat.FULL;
@@ -22,6 +28,9 @@ public class VersionFromManifest {
 	private String creationDate;
 	@Getter
 	private String gitUrl;
+
+	@Getter
+	private boolean initFailed;
 
 	public void init(InputStream inputStream) {
 		try (InputStream is = inputStream) {
@@ -50,6 +59,7 @@ public class VersionFromManifest {
 		commit = "?";
 		version = "?";
 		gitUrl = "?";
+		initFailed = true;
 	}
 
 	public String getLongVersion() {
