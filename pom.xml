@@ -8,8 +8,8 @@
 	<packaging>jar</packaging>
 
 	<name>Utilities from and for oglimmer.de</name>
-	<description>A set of utility classes for projects from oglimmer.de</description>
-	<url>http://oglimmer.de</url>
+	<description>The library helps to prevent boilerplate code for random strings and names, SPI-based slf4j configuration, sophisticated property files, human readable representation of date differences and getting attributes from MANIFEST.FM files.</description>
+	<url>http://oglimmer.de/de.oglimmer.utils/</url>
 
 	<licenses>
 		<license>
