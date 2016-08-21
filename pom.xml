@@ -3,7 +3,7 @@
 
 	<groupId>de.oglimmer</groupId>
 	<artifactId>utils</artifactId>
-	<version>0.1</version>
+	<version>0.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Utilities from and for oglimmer.de</name>
@@ -22,7 +22,7 @@
 		<url>https://github.com/oglimmer/utils</url>
 		<connection>scm:git:git://github.com/oglimmer/utils.git</connection>
 		<developerConnection>scm:git:git@github.com:oglimmer/utils.git</developerConnection>
-		<tag>utils-0.1</tag>
+		<tag>HEAD</tag>
 	</scm>
 
 	<developers>
