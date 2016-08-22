@@ -41,14 +41,14 @@ public class VersionFromManifest {
 	 * @param inputStream
 	 *            to read the Manifest file from
 	 */
-	public void init(InputStream inputStream) {
-		try (InputStream is = inputStream) {
-			Manifest mf = new Manifest(is);
-			Attributes attr = mf.getMainAttributes();
+	public void init(final InputStream inputStream) {
+		try (final InputStream is = inputStream) {
+			final Manifest mf = new Manifest(is);
+			final Attributes attr = mf.getMainAttributes();
 			commit = attr.getValue("git-commit");
 			gitUrl = attr.getValue("git-url");
 			version = attr.getValue("project-version");
-			long time = Long.parseLong(attr.getValue("creation-date"));
+			final long time = Long.parseLong(attr.getValue("creation-date"));
 			creationDate = DateFormat.getDateTimeInstance(DATEFORMAT, DATEFORMAT).format(new Date(time));
 		} catch (Exception e) {
 			initBackToDefaults();
@@ -62,8 +62,8 @@ public class VersionFromManifest {
 	 * @param filename
 	 *            to read the Manifest file from
 	 */
-	public void initFromFile(String filename) {
-		try (InputStream is = new FileInputStream(filename)) {
+	public void initFromFile(final String filename) {
+		try (final InputStream is = new FileInputStream(filename)) {
 			init(is);
 		} catch (IOException e) {
 			initBackToDefaults();

@@ -6,12 +6,16 @@ package de.oglimmer.utils.random;
  * @author Oli Zimpasser
  *
  */
-public class RandomName {
+final public class RandomName {
 
 	private static final String[] NATOALPHABET = { "Alpha", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf",
 			"Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo",
 			"Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-Ray", "Yankee", "Zulu", "Zero", "One", "Two", "Three",
 			"Four", "Five", "Six", "Seven", "Eight", "Nine" };
+
+	private RandomName() {
+		// no code here
+	}
 
 	/**
 	 * Creates a random name.
@@ -20,8 +24,8 @@ public class RandomName {
 	 *            number of words in this name
 	 * @return the generated name
 	 */
-	public static String getName(int parts) {
-		StringBuilder buff = new StringBuilder();
+	public static String getName(final int parts) {
+		final StringBuilder buff = new StringBuilder();
 		for (int i = 0; i < parts; i++) {
 			if (buff.length() != 0) {
 				buff.append('-');

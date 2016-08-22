@@ -9,7 +9,7 @@ import java.util.Date;
  * @author Oli Zimpasser
  *
  */
-public class DateHelper {
+final public class DateHelper {
 
 	private DateHelper() {
 		// no code here
@@ -27,15 +27,15 @@ public class DateHelper {
 	public static String formatDateDifference(Date d1, Date d2) {
 		long[] td = DateHelper.getTimeDifference(d1, d2);
 		if (td[0] > 0) {
-			return td[0] + " day, " + td[1] + " hours";
+			return td[0] + " day(s), " + td[1] + " hour(s)";
 		}
 		if (td[1] > 0) {
-			return td[1] + " hours, " + td[2] + " minutes";
+			return td[1] + " hour(s), " + td[2] + " minute(s)";
 		}
 		if (td[2] > 0) {
-			return td[2] + " minutes, " + td[3] + " seconds";
+			return td[2] + " minute(s), " + td[3] + " second(s)";
 		}
-		return td[3] + " seconds";
+		return td[3] + " second(s)";
 	}
 
 	/**

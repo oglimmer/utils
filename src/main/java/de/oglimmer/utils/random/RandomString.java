@@ -19,7 +19,8 @@ final public class RandomString {
 	 * Creates a size byte long unicode string. All codes are > 32.
 	 * 
 	 * @param size
-	 * @return
+	 *            number of characters in the return string
+	 * @return a random string build from unicode characters
 	 */
 	public static String getRandomStringUnicode(final int size) {
 		final StringBuilder buff = new StringBuilder(size);
@@ -34,7 +35,8 @@ final public class RandomString {
 	 * Creates a size byte long unicode string. All codes are between 32 and 255
 	 * 
 	 * @param size
-	 * @return
+	 *            number of characters in the return string
+	 * @return a random string build from ASCII 32 ... 255
 	 */
 	public static String getRandomString8Bit(final int size) {
 		final StringBuilder buff = new StringBuilder(size);
@@ -49,7 +51,8 @@ final public class RandomString {
 	 * Creates a size byte long unicode string. All codes are between a..z and A..Z
 	 * 
 	 * @param size
-	 * @return
+	 *            number of characters in the return string
+	 * @return a random string build from a..z and A..Z
 	 */
 	public static String getRandomStringASCII(final int size) {
 		final StringBuilder buff = new StringBuilder(size);
@@ -68,8 +71,10 @@ final public class RandomString {
 	 * Creates a size byte long unicode string. All codes are from the set "stringSet"
 	 * 
 	 * @param size
+	 *            number of characters in the return string
 	 * @param stringSet
-	 * @return
+	 *            set of characters used for string creation
+	 * @return a random string build from "stringSet"
 	 */
 	public static String getRandomString(final int size, final String stringSet) {
 
@@ -86,7 +91,8 @@ final public class RandomString {
 	 * Creates a size byte long unicode string. All codes are 0..9 and a..f.
 	 * 
 	 * @param size
-	 * @return
+	 *            number of characters in the return string
+	 * @return a random string build from 0..9 and a..f (a valid hex)
 	 */
 	public static String getRandomStringHex(final int size) {
 		return getRandomString(size, "0123456789ABCDEF");

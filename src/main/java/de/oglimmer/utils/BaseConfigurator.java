@@ -28,9 +28,9 @@ abstract public class BaseConfigurator extends ContextAwareBase implements ch.qo
 	private static final String CP_LOGBACK_CUSTOM_XML = "/logback-custom.xml";
 	private static final String ETC_LOGBACK_CUSTOM_XML = "/etc/logback-custom.xml";
 
-	private String appName;
+	final private String appName;
 
-	public BaseConfigurator(String appName) {
+	public BaseConfigurator(final String appName) {
 		this.appName = appName;
 	}
 
@@ -40,18 +40,18 @@ abstract public class BaseConfigurator extends ContextAwareBase implements ch.qo
 	 * @see ch.qos.logback.classic.spi.Configurator#configure(ch.qos.logback.classic.LoggerContext)
 	 */
 	@Override
-	public void configure(LoggerContext loggerContext) {
+	public void configure(final LoggerContext loggerContext) {
 		addInfo("Setting up custom configuration.");
-		LoggerContext context = (LoggerContext) StaticLoggerBinder.getSingleton().getLoggerFactory();
-		JoranConfigurator jc = new JoranConfigurator();
+		final LoggerContext context = (LoggerContext) StaticLoggerBinder.getSingleton().getLoggerFactory();
+		final JoranConfigurator jc = new JoranConfigurator();
 		jc.setContext(context);
 		context.reset();
 		context.putProperty("application-name", appName);
 		openStream(jc);
 	}
 
-	private void openStream(JoranConfigurator jc) {
-		try (ConfigurableInputStream is = new ConfigurableInputStream()) {
+	private void openStream(final JoranConfigurator jc) {
+		try (final ConfigurableInputStream is = new ConfigurableInputStream()) {
 			if (is.isValid()) {
 				configure(jc, is.getStream());
 			} else {
@@ -102,7 +102,7 @@ abstract public class BaseConfigurator extends ContextAwareBase implements ch.qo
 		}
 
 		private InputStream lookForClasspathFile() {
-			InputStream is = getClass().getResourceAsStream(CP_LOGBACK_CUSTOM_XML);
+			final InputStream is = getClass().getResourceAsStream(CP_LOGBACK_CUSTOM_XML);
 			if (is != null) {
 				addInfo("Could find resource [CP:" + CP_LOGBACK_CUSTOM_XML + "]");
 			} else {
@@ -113,7 +113,7 @@ abstract public class BaseConfigurator extends ContextAwareBase implements ch.qo
 
 		private InputStream lookForEtcFile() {
 			try {
-				File etcFile = new File(ETC_LOGBACK_CUSTOM_XML);
+				final File etcFile = new File(ETC_LOGBACK_CUSTOM_XML);
 				if (etcFile.exists()) {
 					addInfo("Could find resource [file:" + ETC_LOGBACK_CUSTOM_XML + "]");
 					return new FileInputStream(etcFile);
@@ -128,10 +128,10 @@ abstract public class BaseConfigurator extends ContextAwareBase implements ch.qo
 
 		private InputStream lookSystemPropertyReferencedFile() {
 			try {
-				String systemProperty = System.getProperty(appName + "-logback");
+				final String systemProperty = System.getProperty(appName + "-logback");
 				if (systemProperty != null) {
 					addInfo("Could find resource reference [-D" + appName + "-logback = " + systemProperty + "]");
-					File customFile = new File(systemProperty);
+					final File customFile = new File(systemProperty);
 					if (customFile.exists()) {
 						addInfo("Could find resource file [file:" + systemProperty + "]");
 						return new FileInputStream(customFile);

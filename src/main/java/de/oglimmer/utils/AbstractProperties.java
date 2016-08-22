@@ -45,13 +45,13 @@ public class AbstractProperties {
 
 	private static final boolean DEBUG = false;
 
-	private String systemPropertiesKey;
+	final private String systemPropertiesKey;
 
 	@Getter(value = AccessLevel.PROTECTED)
 	private JsonObject json = Json.createObjectBuilder().build();
-	private boolean running = true;
+	private volatile boolean running = true;
 	private Thread propertyFileWatcherThread;
-	private List<Runnable> reloadables = new ArrayList<>();
+	final private List<Runnable> reloadables = new ArrayList<>();
 	private String sourceLocation;
 
 	protected AbstractProperties(String systemPropertiesKey) {
@@ -69,12 +69,13 @@ public class AbstractProperties {
 		if (sourceLocation != null) {
 			try {
 				if (sourceLocation.startsWith("memory:")) {
-					String memoryConfigStr = sourceLocation.substring("memory:".length());
-					try (InputStream is = new ByteArrayInputStream(memoryConfigStr.getBytes(StandardCharsets.UTF_8))) {
+					final String memoryConfigStr = sourceLocation.substring("memory:".length());
+					try (final InputStream is = new ByteArrayInputStream(
+							memoryConfigStr.getBytes(StandardCharsets.UTF_8))) {
 						mergeJson(is);
 					}
 				} else {
-					try (InputStream fis = new FileInputStream(sourceLocation)) {
+					try (final InputStream fis = new FileInputStream(sourceLocation)) {
 						mergeJson(fis);
 					}
 					if (propertyFileWatcherThread == null) {
@@ -93,45 +94,45 @@ public class AbstractProperties {
 	}
 
 	private void loadDefaultProperties() {
-		try (JsonReader rdr = Json.createReader(this.getClass().getResourceAsStream("/default.properties"))) {
+		try (final JsonReader rdr = Json.createReader(this.getClass().getResourceAsStream("/default.properties"))) {
 			json = rdr.readObject();
 			System.out.println("Successfully loaded properties from /default.properties");
 		}
 	}
 
-	private String prettyPrint(JsonObject json) {
-		Map<String, Object> properties = new HashMap<>(1);
+	private String prettyPrint(final JsonObject json) {
+		final Map<String, Object> properties = new HashMap<>(1);
 		properties.put(JsonGenerator.PRETTY_PRINTING, true);
-		JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
+		final JsonWriterFactory writerFactory = Json.createWriterFactory(properties);
 
-		StringWriter sw = new StringWriter();
-		try (JsonWriter jsonWriter = writerFactory.createWriter(sw)) {
+		final StringWriter sw = new StringWriter();
+		try (final JsonWriter jsonWriter = writerFactory.createWriter(sw)) {
 			jsonWriter.writeObject(json);
 
 		}
 		return sw.toString();
 	}
 
-	private void mergeJson(InputStream is) {
-		try (JsonReader rdr = Json.createReader(is)) {
-			JsonObject toBeMerged = rdr.readObject();
+	private void mergeJson(final InputStream is) {
+		try (final JsonReader rdr = Json.createReader(is)) {
+			final JsonObject toBeMerged = rdr.readObject();
 			json = merge(json, toBeMerged);
 			System.out.println("Successfully loaded " + systemPropertiesKey + " from " + sourceLocation + " for merge");
 		}
 	}
 
-	protected JsonObject merge(JsonObject base, JsonObject toOverwrite) {
-		JsonObjectBuilder job = Json.createObjectBuilder();
-		for (Entry<String, JsonValue> entry : base.entrySet()) {
-			String key = entry.getKey();
+	protected JsonObject merge(final JsonObject base, final JsonObject toOverwrite) {
+		final JsonObjectBuilder job = Json.createObjectBuilder();
+		for (final Entry<String, JsonValue> entry : base.entrySet()) {
+			final String key = entry.getKey();
 			if (toOverwrite.containsKey(key)) {
 				job.add(key, toOverwrite.get(key));
 			} else {
 				job.add(key, entry.getValue());
 			}
 		}
-		for (Entry<String, JsonValue> entry : toOverwrite.entrySet()) {
-			String key = entry.getKey();
+		for (final Entry<String, JsonValue> entry : toOverwrite.entrySet()) {
+			final String key = entry.getKey();
 			// if JsonObjectBuilder would have a containsKey we could skip all
 			// already existing keys
 			job.add(key, toOverwrite.get(key));
@@ -145,7 +146,7 @@ public class AbstractProperties {
 	 * @param toCall
 	 *            a runnable to be called
 	 */
-	public void registerOnReload(Runnable toCall) {
+	public void registerOnReload(final Runnable toCall) {
 		reloadables.add(toCall);
 	}
 
@@ -167,7 +168,7 @@ public class AbstractProperties {
 	class PropertyFileWatcher implements Runnable {
 
 		public void run() {
-			File toWatch = new File(sourceLocation);
+			final File toWatch = new File(sourceLocation);
 			log.info("PropertyFileWatcher started");
 			try {
 				final Path path = FileSystems.getDefault().getPath(toWatch.getParent());
@@ -175,7 +176,7 @@ public class AbstractProperties {
 					path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
 					while (running) {
 						final WatchKey wk = watchService.take();
-						for (WatchEvent<?> event : wk.pollEvents()) {
+						for (final WatchEvent<?> event : wk.pollEvents()) {
 							// we only register "ENTRY_MODIFY" so the context is
 							// always a Path.
 							final Path changed = (Path) event.context();
