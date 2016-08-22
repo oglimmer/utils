@@ -16,7 +16,7 @@ final public class RandomString {
 	private static final Random RAN = new Random(System.currentTimeMillis());
 
 	/**
-	 * Creates a size byte long unicode string. All codes are > 32.
+	 * Creates a size byte long unicode string. All codes are &gt; 32.
 	 * 
 	 * @param size
 	 *            number of characters in the return string
