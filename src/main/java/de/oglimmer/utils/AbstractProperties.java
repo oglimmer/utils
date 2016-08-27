@@ -46,6 +46,7 @@ public class AbstractProperties {
 	private static final boolean DEBUG = false;
 
 	final private String systemPropertiesKey;
+	final private String defaultPropertyFile;
 
 	@Getter(value = AccessLevel.PROTECTED)
 	private JsonObject json = Json.createObjectBuilder().build();
@@ -55,7 +56,12 @@ public class AbstractProperties {
 	private String sourceLocation;
 
 	protected AbstractProperties(String systemPropertiesKey) {
+		this(systemPropertiesKey, "/default.properties");
+	}
+
+	protected AbstractProperties(String systemPropertiesKey, String defaultPropertyFile) {
 		this.systemPropertiesKey = systemPropertiesKey;
+		this.defaultPropertyFile = defaultPropertyFile;
 		init();
 	}
 
@@ -94,9 +100,9 @@ public class AbstractProperties {
 	}
 
 	private void loadDefaultProperties() {
-		try (final JsonReader rdr = Json.createReader(this.getClass().getResourceAsStream("/default.properties"))) {
+		try (final JsonReader rdr = Json.createReader(this.getClass().getResourceAsStream(defaultPropertyFile))) {
 			json = rdr.readObject();
-			System.out.println("Successfully loaded properties from /default.properties");
+			System.out.println("Successfully loaded properties from " + defaultPropertyFile);
 		}
 	}
 
