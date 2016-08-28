@@ -2,8 +2,6 @@ package de.oglimmer.utils;
 
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -30,6 +28,11 @@ abstract public class BaseConfigurator extends ContextAwareBase implements ch.qo
 
 	final private String appName;
 
+	/**
+	 * @param appName
+	 *            passed to the xml of a logfile as ${application-name} and used via System.getProperty as
+	 *            "appName"-logback to define the app specific logback.xml
+	 */
 	public BaseConfigurator(final String appName) {
 		this.appName = appName;
 	}
@@ -53,41 +56,32 @@ abstract public class BaseConfigurator extends ContextAwareBase implements ch.qo
 	private void openStream(final JoranConfigurator jc) {
 		try (final ConfigurableInputStream is = new ConfigurableInputStream()) {
 			if (is.isValid()) {
-				configure(jc, is.getStream());
+				is.configure(jc);
 			} else {
 				addError("NO LOGBACK-CUSTOM.XML FOUND! NO LOGGING INITIALIZED.");
 			}
 		}
 	}
 
-	private void configure(JoranConfigurator jc, InputStream is) {
-		try {
-			jc.doConfigure(is);
-		} catch (JoranException e) {
-			addError("Failed to configure JoranConfigurator", e);
-		}
-	}
-
 	class ConfigurableInputStream implements Closeable {
 
 		private InputStream is;
+		private File file;
+		private boolean valid;
 
 		public ConfigurableInputStream() {
-			is = lookSystemPropertyReferencedFile();
-			if (is == null) {
-				is = lookForEtcFile();
+			valid = false;
+			lookSystemPropertyReferencedFile();
+			if (!valid) {
+				lookForEtcFile();
 			}
-			if (is == null) {
-				is = lookForClasspathFile();
+			if (!valid) {
+				lookForClasspathFile();
 			}
-		}
-
-		public InputStream getStream() {
-			return is;
 		}
 
 		public boolean isValid() {
-			return is != null;
+			return valid;
 		}
 
 		@Override
@@ -101,50 +95,64 @@ abstract public class BaseConfigurator extends ContextAwareBase implements ch.qo
 			}
 		}
 
-		private InputStream lookForClasspathFile() {
-			final InputStream is = getClass().getResourceAsStream(CP_LOGBACK_CUSTOM_XML);
+		public void configure(JoranConfigurator jc) {
+			try {
+				if (file != null) {
+					jc.doConfigure(file);
+				} else if (is != null) {
+					jc.doConfigure(is);
+				}
+			} catch (JoranException e) {
+				addError("Failed to configure JoranConfigurator", e);
+			}
+		}
+
+		/**
+		 * 3rd level, last fall-back. This one cannot be reloadable.
+		 * 
+		 */
+		private void lookForClasspathFile() {
+			is = getClass().getResourceAsStream(CP_LOGBACK_CUSTOM_XML);
 			if (is != null) {
 				addInfo("Could find resource [CP:" + CP_LOGBACK_CUSTOM_XML + "]");
+				valid = true;
 			} else {
 				addError("Could NOT find resource [CP:" + CP_LOGBACK_CUSTOM_XML + "]");
 			}
-			return is;
 		}
 
-		private InputStream lookForEtcFile() {
-			try {
-				final File etcFile = new File(ETC_LOGBACK_CUSTOM_XML);
-				if (etcFile.exists()) {
-					addInfo("Could find resource [file:" + ETC_LOGBACK_CUSTOM_XML + "]");
-					return new FileInputStream(etcFile);
-				} else {
-					addInfo("Could NOT find resource [file:" + ETC_LOGBACK_CUSTOM_XML + "]");
-				}
-			} catch (FileNotFoundException e) {
-				addError("Failed to load file", e);
+		/**
+		 * 
+		 */
+		private void lookForEtcFile() {
+			file = new File(ETC_LOGBACK_CUSTOM_XML);
+			if (file.exists()) {
+				addInfo("Could find resource [file:" + ETC_LOGBACK_CUSTOM_XML + "]");
+				valid = true;
+			} else {
+				addInfo("Could NOT find resource [file:" + ETC_LOGBACK_CUSTOM_XML + "]");
+				file = null;
 			}
-			return null;
 		}
 
-		private InputStream lookSystemPropertyReferencedFile() {
-			try {
-				final String systemProperty = System.getProperty(appName + "-logback");
-				if (systemProperty != null) {
-					addInfo("Could find resource reference [-D" + appName + "-logback = " + systemProperty + "]");
-					final File customFile = new File(systemProperty);
-					if (customFile.exists()) {
-						addInfo("Could find resource file [file:" + systemProperty + "]");
-						return new FileInputStream(customFile);
-					} else {
-						addError("File file:" + systemProperty + " does NOT exist.");
-					}
+		/**
+		 * 1st level. Check if the System property is defined and points to a file.
+		 */
+		private void lookSystemPropertyReferencedFile() {
+			final String systemProperty = System.getProperty(appName + "-logback");
+			if (systemProperty != null) {
+				addInfo("Could find resource reference [-D" + appName + "-logback = " + systemProperty + "]");
+				file = new File(systemProperty);
+				if (file.exists()) {
+					addInfo("Could find resource file [file:" + systemProperty + "]");
+					valid = true;
 				} else {
-					addInfo("Could NOT find resource reference [-D" + appName + "-logback]");
+					addError("File file:" + systemProperty + " does NOT exist.");
+					file = null;
 				}
-			} catch (FileNotFoundException e) {
-				addError("Failed to load file", e);
+			} else {
+				addInfo("Could NOT find resource reference [-D" + appName + "-logback]");
 			}
-			return null;
 		}
 	}
 }
