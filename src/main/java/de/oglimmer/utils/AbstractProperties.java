@@ -14,6 +14,7 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,16 +53,38 @@ public class AbstractProperties {
 	private JsonObject json = Json.createObjectBuilder().build();
 	private volatile boolean running = true;
 	private Thread propertyFileWatcherThread;
-	final private List<Runnable> reloadables = new ArrayList<>();
+	final private List<Runnable> reloadables = Collections.synchronizedList(new ArrayList<>());
 	private String sourceLocation;
+	private boolean reload;
 
+	/**
+	 * Uses /default.properties from classpath for default properties file. Reload will be enabled.
+	 * 
+	 * @param systemPropertiesKey name of a -D parameter which holds a filesystem (not classpath) filename.
+	 */
 	protected AbstractProperties(String systemPropertiesKey) {
 		this(systemPropertiesKey, "/default.properties");
 	}
 
+	/**
+	 * Reload will be enabled.
+	 * 
+	 * @param systemPropertiesKey name of a -D parameter which holds a filesystem (not classpath) filename.
+	 * @param defaultPropertyFile classpath based filename to the default properties file
+	 */
 	protected AbstractProperties(String systemPropertiesKey, String defaultPropertyFile) {
+		this(systemPropertiesKey, defaultPropertyFile, true);
+	}
+
+	/**
+	 * @param systemPropertiesKey name of a -D parameter which holds a filesystem (not classpath) filename.
+	 * @param defaultPropertyFile classpath based filename to the default properties file
+	 * @param reload enable/disable a file watcher to automatically reload the config
+	 */
+	protected AbstractProperties(String systemPropertiesKey, String defaultPropertyFile, boolean reload) {
 		this.systemPropertiesKey = systemPropertiesKey;
 		this.defaultPropertyFile = defaultPropertyFile;
+		this.reload = reload;
 		init();
 	}
 
@@ -84,7 +107,7 @@ public class AbstractProperties {
 					try (final InputStream fis = new FileInputStream(sourceLocation)) {
 						mergeJson(fis);
 					}
-					if (propertyFileWatcherThread == null) {
+					if (reload && propertyFileWatcherThread == null) {
 						propertyFileWatcherThread = new Thread(new PropertyFileWatcher());
 						propertyFileWatcherThread.start();
 					}
@@ -153,6 +176,9 @@ public class AbstractProperties {
 	 *            a runnable to be called
 	 */
 	public void registerOnReload(final Runnable toCall) {
+		if (!reload) {
+			throw new RuntimeException("Not allowed as reload is false");
+		}
 		reloadables.add(toCall);
 	}
 
@@ -175,12 +201,12 @@ public class AbstractProperties {
 
 		public void run() {
 			final File toWatch = new File(sourceLocation);
-			log.info("PropertyFileWatcher started");
 			try {
 				final Path path = FileSystems.getDefault().getPath(toWatch.getParent());
+				log.info("PropertyFileWatcher started on {}", path);
 				try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
 					path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-					while (running) {
+					while (running) {						
 						final WatchKey wk = watchService.take();
 						for (final WatchEvent<?> event : wk.pollEvents()) {
 							// we only register "ENTRY_MODIFY" so the context is
