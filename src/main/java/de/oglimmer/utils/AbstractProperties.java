@@ -34,9 +34,23 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * A base class for application property classes. Supports json-based config files, automatic reloads when the file
- * changes, merging in-classpath and out-of-classpath files and can take the whole configuration from a string to
+ * A base class for application property classes. Supports json-based config
+ * files, automatic reloads when the file changes, merging in-classpath and
+ * out-of-classpath files and can take the whole configuration from a string to
  * support unit test configurations.
+ * 
+ * <div> Search-Logic:
+ * <ol>
+ * <li>Always load default properties (filename: defaultPropertyFile) from
+ * classpath</li>
+ * <li>if systemPropertiesKey starts with "memory:", treat systemPropertiesKey
+ * as a JSON object and merge it</li>
+ * <li>else if System.getProperties(systemPropertiesKey) is not null =&gt; load
+ * and merge it</li>
+ * <li>else if file /etc/${systemPropertiesKey} exists =&gt; load and merge
+ * it</li>
+ * </ol>
+ * </div>
  * 
  * @author Oli Zimpasser
  *
@@ -95,26 +109,40 @@ public class AbstractProperties {
 	private void init() {
 		loadDefaultProperties();
 		sourceLocation = System.getProperty(systemPropertiesKey);
+		boolean startFileWatcher = false;
 		if (sourceLocation != null) {
-			try {
-				if (sourceLocation.startsWith("memory:")) {
-					final String memoryConfigStr = sourceLocation.substring("memory:".length());
-					try (final InputStream is = new ByteArrayInputStream(
-							memoryConfigStr.getBytes(StandardCharsets.UTF_8))) {
-						mergeJson(is);
-					}
-				} else {
-					try (final InputStream fis = new FileInputStream(sourceLocation)) {
-						mergeJson(fis);
-					}
-					if (reload && propertyFileWatcherThread == null) {
-						propertyFileWatcherThread = new Thread(new PropertyFileWatcher());
-						propertyFileWatcherThread.start();
-					}
+			if (sourceLocation.startsWith("memory:")) {
+				final String memoryConfigStr = sourceLocation.substring("memory:".length());
+				try (final InputStream is = new ByteArrayInputStream(
+						memoryConfigStr.getBytes(StandardCharsets.UTF_8))) {
+					mergeJson(is);
+				} catch (IOException e) {
+					log.error("Failed to get memory InputStream from " + sourceLocation, e);
 				}
-			} catch (IOException e) {
-				log.error("Failed to load properties file " + sourceLocation, e);
+			} else {
+				try (final InputStream fis = new FileInputStream(sourceLocation)) {
+					mergeJson(fis);
+					startFileWatcher = true;
+				} catch (IOException e) {
+					log.error("Failed to load ext properties file " + sourceLocation, e);
+				}
 			}
+
+		} else {
+			File extDefaultFile = new File("/etc/" + systemPropertiesKey);
+			if (extDefaultFile.exists()) {
+				try (final InputStream fis = new FileInputStream(extDefaultFile)) {
+					sourceLocation = extDefaultFile.getAbsolutePath();
+					mergeJson(fis);
+					startFileWatcher = true;
+				} catch (IOException e) {
+					log.error("Failed to load /etc/ properties file " + extDefaultFile, e);
+				}
+			}
+		}
+		if (startFileWatcher && reload && propertyFileWatcherThread == null) {
+			propertyFileWatcherThread = new Thread(new PropertyFileWatcher());
+			propertyFileWatcherThread.start();
 		}
 		json = createExtraInitAttributes();
 		if (DEBUG) {
@@ -206,7 +234,7 @@ public class AbstractProperties {
 				log.info("PropertyFileWatcher started on {}", path);
 				try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
 					path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-					while (running) {						
+					while (running) {
 						final WatchKey wk = watchService.take();
 						for (final WatchEvent<?> event : wk.pollEvents()) {
 							// we only register "ENTRY_MODIFY" so the context is
