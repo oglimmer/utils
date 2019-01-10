@@ -46,7 +46,7 @@ import lombok.extern.slf4j.Slf4j;
  * <li>if systemPropertiesKey starts with "memory:", treat systemPropertiesKey
  * as a JSON object and merge it</li>
  * <li>else if System.getProperties(systemPropertiesKey) is not null =&gt; load
- * and merge it</li>
+ * the file coming from this and merge it</li>
  * <li>else if file /etc/${systemPropertiesKey} exists =&gt; load and merge
  * it</li>
  * </ol>
