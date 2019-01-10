@@ -39,6 +39,8 @@ import lombok.extern.slf4j.Slf4j;
  * out-of-classpath files and can take the whole configuration from a string to
  * support unit test configurations.
  * 
+ * All property files must be in JSON format.
+ * 
  * <div> Search-Logic:
  * <ol>
  * <li>Always load default properties (filename: defaultPropertyFile) from
@@ -74,6 +76,8 @@ public class AbstractProperties {
 	/**
 	 * Uses /default.properties from classpath for default properties file. Reload will be enabled.
 	 * 
+	 * All property files must be in JSON format.
+	 * 
 	 * @param systemPropertiesKey name of a -D parameter which holds a filesystem (not classpath) filename.
 	 */
 	protected AbstractProperties(String systemPropertiesKey) {
@@ -83,6 +87,8 @@ public class AbstractProperties {
 	/**
 	 * Reload will be enabled.
 	 * 
+	 * All property files must be in JSON format.
+	 * 
 	 * @param systemPropertiesKey name of a -D parameter which holds a filesystem (not classpath) filename.
 	 * @param defaultPropertyFile classpath based filename to the default properties file
 	 */
@@ -91,6 +97,8 @@ public class AbstractProperties {
 	}
 
 	/**
+	 * All property files must be in JSON format.
+	 * 
 	 * @param systemPropertiesKey name of a -D parameter which holds a filesystem (not classpath) filename.
 	 * @param defaultPropertyFile classpath based filename to the default properties file
 	 * @param reload enable/disable a file watcher to automatically reload the config
