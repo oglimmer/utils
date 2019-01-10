@@ -3,7 +3,7 @@
 
 	<groupId>de.oglimmer.utils</groupId>
 	<artifactId>common-utils</artifactId>
-	<version>0.5-SNAPSHOT</version>
+	<version>0.5</version>
 	<packaging>jar</packaging>
 
 	<name>Utilities from and for oglimmer.de</name>
