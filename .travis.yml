@@ -1,4 +1,11 @@
 language: java
-install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dgpg.skip
 jdk:
-  - oraclejdk8
+  - openjdk8
+before_install:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+install:
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dgpg.skip
+after_install:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
