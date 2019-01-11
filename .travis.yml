@@ -7,5 +7,5 @@ before_install:
   - ./cc-test-reporter before-build
 install:
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dgpg.skip
-after_install:
+after_script:
   - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
