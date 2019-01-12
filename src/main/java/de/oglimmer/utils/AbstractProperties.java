@@ -121,11 +121,8 @@ public class AbstractProperties {
 
 	private void initMemory() {
 		final String memoryConfigStr = sourceLocation.substring("memory:".length());
-		try (final InputStream is = new ByteArrayInputStream(memoryConfigStr.getBytes(StandardCharsets.UTF_8))) {
-			mergeJson(is);
-		} catch (IOException e) {
-			log.error("Failed to get memory InputStream from " + sourceLocation, e);
-		}
+		final InputStream is = new ByteArrayInputStream(memoryConfigStr.getBytes(StandardCharsets.UTF_8));
+		mergeJson(is);
 	}
 
 	private boolean initExternalFile() {
