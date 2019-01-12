@@ -48,23 +48,14 @@ final public class RandomString {
 	}
 
 	/**
-	 * Creates a size byte long unicode string. All codes are between a..z and A..Z
+	 * Creates a size byte long unicode string. All codes are between a..z and A..Z and 0..9
 	 * 
 	 * @param size
 	 *            number of characters in the return string
-	 * @return a random string build from a..z and A..Z
+	 * @return a random string build from a..z and A..Z and 0..9
 	 */
 	public static String getRandomStringASCII(final int size) {
-		final StringBuilder buff = new StringBuilder(size);
-
-		for (int i = 0; i < size; i++) {
-			char nextChar;
-			do {
-				nextChar = (char) (RAN.nextInt(75) + 48);
-			} while ((nextChar >= 58 && nextChar <= 64) || (nextChar >= 91 && nextChar <= 96));
-			buff.append(nextChar);
-		}
-		return buff.toString();
+		return getRandomString(size, "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
 	}
 
 	/**

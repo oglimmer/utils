@@ -114,47 +114,58 @@ public class AbstractProperties {
 		return json;
 	}
 
+	private void initMemory() {
+		final String memoryConfigStr = sourceLocation.substring("memory:".length());
+		try (final InputStream is = new ByteArrayInputStream(memoryConfigStr.getBytes(StandardCharsets.UTF_8))) {
+			mergeJson(is);
+		} catch (IOException e) {
+			log.error("Failed to get memory InputStream from " + sourceLocation, e);
+		}
+	}
+
+	private boolean initExternalFile() {
+		try (final InputStream fis = new FileInputStream(sourceLocation)) {
+			mergeJson(fis);
+			return true;
+		} catch (IOException e) {
+			log.error("Failed to load properties file " + sourceLocation, e);
+		}
+		return false;
+	}
+
+	private boolean initExternalEtcFile() {
+		File extDefaultFile = new File("/etc/" + systemPropertiesKey);
+		if (extDefaultFile.exists()) {
+			sourceLocation = extDefaultFile.getAbsolutePath();
+			return initExternalFile();
+		}
+		return false;
+	}
+
 	private void init() {
 		loadDefaultProperties();
 		sourceLocation = System.getProperty(systemPropertiesKey);
 		boolean startFileWatcher = false;
 		if (sourceLocation != null) {
 			if (sourceLocation.startsWith("memory:")) {
-				final String memoryConfigStr = sourceLocation.substring("memory:".length());
-				try (final InputStream is = new ByteArrayInputStream(
-						memoryConfigStr.getBytes(StandardCharsets.UTF_8))) {
-					mergeJson(is);
-				} catch (IOException e) {
-					log.error("Failed to get memory InputStream from " + sourceLocation, e);
-				}
+				initMemory();
 			} else {
-				try (final InputStream fis = new FileInputStream(sourceLocation)) {
-					mergeJson(fis);
-					startFileWatcher = true;
-				} catch (IOException e) {
-					log.error("Failed to load ext properties file " + sourceLocation, e);
-				}
+				startFileWatcher = initExternalFile();
 			}
-
 		} else {
-			File extDefaultFile = new File("/etc/" + systemPropertiesKey);
-			if (extDefaultFile.exists()) {
-				try (final InputStream fis = new FileInputStream(extDefaultFile)) {
-					sourceLocation = extDefaultFile.getAbsolutePath();
-					mergeJson(fis);
-					startFileWatcher = true;
-				} catch (IOException e) {
-					log.error("Failed to load /etc/ properties file " + extDefaultFile, e);
-				}
-			}
+			startFileWatcher = initExternalEtcFile();
 		}
-		if (startFileWatcher && reload && propertyFileWatcherThread == null) {
-			propertyFileWatcherThread = new Thread(new PropertyFileWatcher());
-			propertyFileWatcherThread.start();
-		}
+		startWatcherThread(startFileWatcher);
 		json = createExtraInitAttributes();
 		if (DEBUG) {
 			System.out.println("Used config: " + prettyPrint(json));
+		}
+	}
+
+	private void startWatcherThread(boolean startFileWatcher) {
+		if (startFileWatcher && reload && propertyFileWatcherThread == null) {
+			propertyFileWatcherThread = new Thread(new PropertyFileWatcher());
+			propertyFileWatcherThread.start();
 		}
 	}
 
@@ -240,30 +251,37 @@ public class AbstractProperties {
 			try {
 				final Path path = FileSystems.getDefault().getPath(toWatch.getParent());
 				log.info("PropertyFileWatcher started on {}", path);
-				try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
-					path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
-					while (running) {
-						final WatchKey wk = watchService.take();
-						for (final WatchEvent<?> event : wk.pollEvents()) {
-							// we only register "ENTRY_MODIFY" so the context is
-							// always a Path.
-							final Path changed = (Path) event.context();
-							if (changed.endsWith(toWatch.getName())) {
-								log.debug("{} changed => reload", toWatch.getAbsolutePath());
-								reload();
-							}
-						}
-						boolean valid = wk.reset();
-						if (!valid) {
-							log.warn("The PropertyFileWatcher's key has been unregistered.");
-						}
-					}
-				}
+				loopAndWatch(toWatch, path);
 			} catch (InterruptedException e) {
 			} catch (Exception e) {
 				log.error("PropertyFileWatcher failed", e);
 			}
 			log.info("PropertyFileWatcher ended");
+		}
+
+		private void loopAndWatch(final File toWatch, final Path path) throws IOException, InterruptedException {
+			try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
+				path.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+				while (running) {
+					final WatchKey wk = watchService.take();
+					processWatchKey(toWatch, wk);
+				}
+			}
+		}
+
+		private void processWatchKey(final File toWatch, final WatchKey wk) throws InterruptedException {
+			for (final WatchEvent<?> event : wk.pollEvents()) {
+				// we only register "ENTRY_MODIFY" so the context is always a Path.
+				final Path changed = (Path) event.context();
+				if (changed.endsWith(toWatch.getName())) {
+					log.debug("{} changed => reload", toWatch.getAbsolutePath());
+					reload();
+				}
+			}
+			boolean valid = wk.reset();
+			if (!valid) {
+				log.warn("The PropertyFileWatcher's key has been unregistered.");
+			}
 		}
 	}
 
