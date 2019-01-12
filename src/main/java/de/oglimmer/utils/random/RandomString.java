@@ -16,19 +16,31 @@ final public class RandomString {
 	private static final Random RAN = new Random(System.currentTimeMillis());
 
 	/**
-	 * Creates a size byte long unicode string. All codes are &gt; 32.
+	 * Creates a size byte long unicode string. All codes are &gt;= start and &lt; start+length
+	 *
+	 * @param size number of characters in the return string
+	 * @param start start code
+	 * @param length all generated codes are within this range
+	 * @return
+	 */
+	public static String getRandomString(final int size, final int start, final int length) {
+		final StringBuilder buff = new StringBuilder(size);
+
+		for (int i = 0; i < size; i++) {
+			buff.append((char) (RAN.nextInt(length) + start));
+		}
+		return buff.toString();
+	}
+	
+	/**
+	 * Creates a size byte long unicode string. All codes are &gt;= 32.
 	 * 
 	 * @param size
 	 *            number of characters in the return string
 	 * @return a random string build from unicode characters
 	 */
 	public static String getRandomStringUnicode(final int size) {
-		final StringBuilder buff = new StringBuilder(size);
-
-		for (int i = 0; i < size; i++) {
-			buff.append((char) (RAN.nextInt(65503) + 32));
-		}
-		return buff.toString();
+		return getRandomString(size, 32, 65503);
 	}
 
 	/**
@@ -39,12 +51,7 @@ final public class RandomString {
 	 * @return a random string build from ASCII 32 ... 255
 	 */
 	public static String getRandomString8Bit(final int size) {
-		final StringBuilder buff = new StringBuilder(size);
-
-		for (int i = 0; i < size; i++) {
-			buff.append((char) (RAN.nextInt(223) + 32));
-		}
-		return buff.toString();
+		return getRandomString(size, 32, 223);
 	}
 
 	/**

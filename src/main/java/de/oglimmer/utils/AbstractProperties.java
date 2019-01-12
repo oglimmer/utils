@@ -110,6 +110,11 @@ public class AbstractProperties {
 		init();
 	}
 
+	/**
+	 * Overwrite this to manipulate the properties after default and extra properties are loaded.
+	 * 
+	 * @return the manipulated properties
+	 */
 	protected JsonObject createExtraInitAttributes() {
 		return json;
 	}
@@ -143,8 +148,16 @@ public class AbstractProperties {
 	}
 
 	private void init() {
-		loadDefaultProperties();
 		sourceLocation = System.getProperty(systemPropertiesKey);
+		loadDefaultProperties();
+		loadExtraPropertiesAndStartWatcherThread();
+		json = createExtraInitAttributes();
+		if (DEBUG) {
+			System.out.println("Used config: " + prettyPrint(json));
+		}
+	}
+
+	private void loadExtraPropertiesAndStartWatcherThread() {
 		boolean startFileWatcher = false;
 		if (sourceLocation != null) {
 			if (sourceLocation.startsWith("memory:")) {
@@ -156,10 +169,6 @@ public class AbstractProperties {
 			startFileWatcher = initExternalEtcFile();
 		}
 		startWatcherThread(startFileWatcher);
-		json = createExtraInitAttributes();
-		if (DEBUG) {
-			System.out.println("Used config: " + prettyPrint(json));
-		}
 	}
 
 	private void startWatcherThread(boolean startFileWatcher) {
