@@ -6,7 +6,7 @@ The library helps to prevent boilerplate code for random strings and names, SPI-
 
 Download/use the latest binaries from [central maven repository](https://search.maven.org/artifact/de.oglimmer.utils/common-utils)
 
-The javadoc can be found at [here](https://oglimmer.de/de.oglimmer.utils/doc)
+The javadoc can be found at [here](http://www.javadoc.io/doc/de.oglimmer.utils/common-utils/)
 
 Travis-ci.org build: <a href="https://travis-ci.org/oglimmer/utils"><img src="https://travis-ci.org/oglimmer/utils.svg?branch=master"/></a>
 
