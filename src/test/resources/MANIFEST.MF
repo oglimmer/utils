@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Created-By: Apache Maven
+Built-By: oli
+Build-Jdk: 11.0.1
+creation-date: 1543264845568
+git-commit: b88537541a84b2e76a37fcbbef7615bd06d0cc9c
+git-url: https://github.com/oglimmer/utils
+project-version: 0.1-SNAPSHOT
