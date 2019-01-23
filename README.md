@@ -12,6 +12,8 @@ Travis-ci.org build: <a href="https://travis-ci.org/oglimmer/utils"><img src="ht
 
 CodeClimate: <a href="https://codeclimate.com/github/oglimmer/utils/maintainability"><img src="https://api.codeclimate.com/v1/badges/87f56eaead155a43aae7/maintainability" /></a> <a href="https://codeclimate.com/github/oglimmer/utils/test_coverage"><img src="https://api.codeclimate.com/v1/badges/87f56eaead155a43aae7/test_coverage" /></a>
 
+License: <a href="https://app.fossa.io/projects/git%2Bgithub.com%2Foglimmer%2Futils?ref=badge_shield" alt="FOSSA Status"><img src="https://app.fossa.io/api/projects/git%2Bgithub.com%2Foglimmer%2Futils.svg?type=shield"/></a>
+
 # Detailed information with examples
 
 ## Class: de.oglimmer.utils.VersionFromManifest
