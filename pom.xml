@@ -110,6 +110,22 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>test</phase>
+						<configuration>
+							<tasks>
+								<replace file="target/site/jacoco/jacoco.xml" token="de/oglimmer/" value="src/main/java/de/oglimmer/"/>
+							</tasks>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 
