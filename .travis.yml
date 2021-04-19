@@ -1,12 +1,15 @@
 language: java
-jdk:
-  - openjdk8
-before_install:
+dist: trusty
+jdk: oraclejdk11
+env:
+  global:
+    - CC_TEST_REPORTER_ID=8caf97646ab3b3569a638f130a748843cfdfbbdfe70f32a7d24ed58df61d9e43
+before_script:
   - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
   - chmod +x ./cc-test-reporter
   - ./cc-test-reporter before-build
-install:
-  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -Dgpg.skip
+script:
+  - mvn test
 after_script:
-  - JACOCO_SOURCE_PATH=src/main/java ./cc-test-reporter format-coverage target/site/jacoco/jacoco.xml --input-type jacoco
-  - ./cc-test-reporter upload-coverage
+  - ./cc-test-reporter format-coverage -d -t jacoco ./target/jacoco-ut/jacoco.xml
+  - ./cc-test-reporter upload-coverage -d
