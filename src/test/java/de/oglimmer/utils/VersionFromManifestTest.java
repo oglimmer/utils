@@ -19,12 +19,12 @@ public class VersionFromManifestTest {
 
 	private void checkSuccess(VersionFromManifest vfm) {
 		assertThat(vfm.isInitFailed(), is(false));
-		assertThat(vfm.getCreationDate(), is("Monday, November 26, 2018 8:40:45 PM UTC"));
+		assertThat(vfm.getCreationDate(), is("Monday, November 26, 2018 at 8:40:45 PM Coordinated Universal Time"));
 		assertThat(vfm.getCommit(), is("b88537541a84b2e76a37fcbbef7615bd06d0cc9c"));
 		assertThat(vfm.getGitUrl(), is("https://github.com/oglimmer/utils"));
 		assertThat(vfm.getVersion(), is("0.1-SNAPSHOT"));
 		assertThat(vfm.getLongVersion(), is(
-				"V0.1-SNAPSHOT [<a href='https://github.com/oglimmer/utils/commits/b88537541a84b2e76a37fcbbef7615bd06d0cc9c'>Commit#b88537541a84b2e76a37fcbbef7615bd06d0cc9c</a>] build Monday, November 26, 2018 8:40:45 PM UTC"));
+				"V0.1-SNAPSHOT [<a href='https://github.com/oglimmer/utils/commits/b88537541a84b2e76a37fcbbef7615bd06d0cc9c'>Commit#b88537541a84b2e76a37fcbbef7615bd06d0cc9c</a>] build Monday, November 26, 2018 at 8:40:45 PM Coordinated Universal Time"));
 	}
 
 	private void checkFailed(VersionFromManifest vfm) {
