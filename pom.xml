@@ -117,7 +117,13 @@
 						<phase>test</phase>
 						<configuration>
 							<tasks>
-								<replace file="target/site/jacoco/jacoco.xml" token="de/oglimmer/" value="src/main/java/de/oglimmer/"/>
+								<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+								<if>
+									<available file="target/site/jacoco/jacoco.xml"/>
+									<then>
+										<replace file="target/site/jacoco/jacoco.xml" token="de/oglimmer/" value="src/main/java/de/oglimmer/"/>
+									</then>
+								</if>
 							</tasks>
 						</configuration>
 						<goals>
@@ -125,6 +131,13 @@
 						</goals>
 					</execution>
 				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>ant-contrib</groupId>
+						<artifactId>ant-contrib</artifactId>
+						<version>20020829</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 		</plugins>
 	</build>
