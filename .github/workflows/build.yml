@@ -1,0 +1,36 @@
+name: Java CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+env:
+  CC_TEST_REPORTER_ID: 8caf97646ab3b3569a638f130a748843cfdfbbdfe70f32a7d24ed58df61d9e43
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Install Code Climate Test Reporter
+        run: |
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+          chmod +x ./cc-test-reporter
+      - name: Run Code Climate Test Reporter before-build command
+        run: ./cc-test-reporter before-build
+      - name: Build and test with Maven
+        run: mvn test
+      - name: Format Code Climate Test Reporter coverage
+        run: ./cc-test-reporter format-coverage -d -t jacoco ./target/site/jacoco/jacoco.xml
+      - name: Upload Code Climate Test Reporter coverage
+        run: ./cc-test-reporter upload-coverage -d
